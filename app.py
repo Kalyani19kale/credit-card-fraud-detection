@@ -12,7 +12,7 @@ import numpy as np
 import pickle  # <- using pickle instead of joblib
 
 #load model
-with open('fraud_model.pkl', 'rb') as f:
+with open('model.pkl', 'rb') as f:
     model = pickle.load(f)
 
 with open('scaler.pkl', 'rb') as f:
