@@ -10,9 +10,11 @@ Original file is located at
 import streamlit as st
 import numpy as np
 import pickle
-import pandas as pd
+# Predefined sample (copied from dataset)
 
-df = pd.read_csv("creditcard.csv")
+sample = [0.0]*30
+sample[-1] = amount   
+
 # Load model
 model = pickle.load(open('model.pkl', 'rb'))
 
