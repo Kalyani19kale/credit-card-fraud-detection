@@ -21,8 +21,13 @@ amount = st.number_input("Transaction Amount", min_value=0.0)
 
 if st.button("Check Fraud"):
 
-    # create sample AFTER amount is defined
-    sample = [0.0]*30
+    sample = [10,0.384978215,0.616109459,-0.874299703,-0.094018626,2.924584378,
+    3.317027168,0.470454672,0.538247228,-0.558894612,0.309755394,-0.259115564,
+    -0.326143234,-0.090046723,0.362832369,0.928903661,-0.129486811,-0.809978926,
+    0.35998539,0.707663826,0.125991576,0.049923686,0.238421512,0.009129869,
+    0.99671021,-0.767314827,-0.492208295,0.042472442,-0.054337388,9.99]
+
+    # update amount
     sample[-1] = amount
 
     prediction = model.predict([sample])
@@ -31,4 +36,4 @@ if st.button("Check Fraud"):
     if prediction[0] == 1:
         st.error(f"Fraud Detected! Probability: {prob:.2f}")
     else:
-        st.success(f" Normal Transaction. Probability: {prob:.2f}")
+        st.success(f"Normal Transaction. Probability: {prob:.2f}")
