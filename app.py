@@ -21,16 +21,15 @@ st.write("Enter transaction details:")
 # Input
 amount = st.number_input("Transaction Amount", min_value=0.0)
 
-# Dummy input for V1–V28 (zeros)
-input_data = np.zeros(30)
-input_data[29] = amount   # assuming Amount is last column
-
-# Predict
 if st.button("Check Fraud"):
-    prediction = model.predict([input_data])
-    prob = model.predict_proba([input_data])[0][1]
+
+    sample = df.drop('Class', axis=1).iloc[0].values
+    sample[-1] = amount
+
+    prediction = model.predict([sample])
+    prob = model.predict_proba([sample])[0][1]
 
     if prediction[0] == 1:
-        st.error(f"Fraud Detected! Probability: {prob:.2f}")
+        st.error(f" Fraud Detected! Probability: {prob:.2f}")
     else:
         st.success(f"Normal Transaction. Probability of fraud: {prob:.2f}")
