@@ -9,35 +9,46 @@ Original file is located at
 import streamlit as st
 import pandas as pd
 import numpy as np
-import pickle 
+import pickle
+
+# Load model and scaler
 with open('model.pkl', 'rb') as f:
     model = pickle.load(f)
 
 with open('scaler.pkl', 'rb') as f:
     scaler = pickle.load(f)
 
-st.title("Credit Card Fraud Detection")
-st.write("Enter transaction details:")
+st.title(" Credit Card Fraud Detection")
+st.write("Enter transaction details to check for fraudulent activity.")
 
-# Input features (V1 to V28)
-V_features = [f'V{i}' for i in range(1,29)]
-input_data = []
+# --- STEP 1: TIME FEATURE ---
+# Most models expect 'Time' as the first feature
+time_val = st.number_input("Time (Seconds since first transaction)", value=0.0)
 
-for feature in V_features:
-    val = st.number_input(f"{feature}", value=0.0)
-    input_data.append(val)
+# --- STEP 2: V1 to V28 FEATURES ---
+# These are PCA-transformed features (typically values between -20 and 20)
+v_inputs = []
+cols = st.columns(4) # Organize inputs into 4 columns for better UI
+for i in range(1, 29):
+    with cols[(i-1) % 4]:
+        val = st.number_input(f"V{i}", value=0.0, format="%.4f")
+        v_inputs.append(val)
 
-# Input for Amount
-amount = st.number_input("Amount", value=0.0)
-amount_scaled = scaler.transform([[amount]])[0][0]  # scale amount
+# --- STEP 3: AMOUNT FEATURE ---
+amount = st.number_input("Transaction Amount ($)", value=0.0)
 
-input_data.append(amount_scaled)
+# IMPORTANT: Scaler expects a 2D array [[value]]
+amount_scaled = scaler.transform([[amount]])[0][0]
+
+# --- STEP 4: COMBINE AND PREDICT ---
+# Order: [Time, V1, V2, ..., V28, Amount_Scaled]
+input_data = [time_val] + v_inputs + [amount_scaled]
 input_array = np.array(input_data).reshape(1, -1)
 
-# Prediction
 if st.button("Predict Fraud"):
     prediction = model.predict(input_array)
+    
     if prediction[0] == 1:
-        st.error("Fraudulent Transaction Detected!")
+        st.error("Warning: Fraudulent Transaction Detected!")
     else:
-        st.success("Transaction is Normal")
+        st.success("Transaction Appears Normal")
