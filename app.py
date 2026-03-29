@@ -7,45 +7,26 @@ Original file is located at
     https://colab.research.google.com/drive/18ywxrGn_QkldBRecBWzuo07MVWeAtMMF
 """
 import streamlit as st
+import numpy as np
 import pickle
 
-model = pickle.load(open('model.pkl', 'rb'))
+# Load model
+model = pickle.load(open("model.pkl", "rb"))
 
 st.title("Credit Card Fraud Detection")
 
-# ✅ Amount input
-amount = st.number_input("Enter Transaction Amount", min_value=0.0)
+# Input (keep it simple)
+amount = st.number_input("Enter Transaction Amount")
+v1 = st.number_input("Enter V1")
+v2 = st.number_input("Enter V2")
 
-# ✅ Select type
-option = st.selectbox(
-    "Choose transaction type:",
-    ["Normal Transaction", "Fraud Transaction"]
-)
+# Button
+if st.button("Check Transaction"):
+    input_data = np.array([[amount, v1, v2]])  # match your model features
+    
+    prediction = model.predict(input_data)
 
-if st.button("Check Fraud"):
-
-    # ✅ Normal sample (realistic)
-    normal_sample = [10,0.38,0.61,-0.87,-0.09,2.92,3.31,0.47,0.53,-0.55,0.30,
-    -0.25,-0.32,-0.09,0.36,0.92,-0.12,-0.80,0.35,0.70,0.12,0.04,0.23,
-    0.009,0.99,-0.76,-0.49,0.04,-0.05,50]
-
-    # 🚨 Strong fraud-like sample (modified)
-    fraud_sample = [-5,-3,4,3,-2,-1,2,-1,-3,2,-2,3,-4,2,-3,1,-2,2,-3,2,-1,1,
-    -2,3,-1,2,-2,1,-1,amount]
-
-    # choose sample
-    if option == "Normal Transaction":
-        sample = normal_sample
+    if prediction[0] == 0:
+        st.success("Normal Transaction")
     else:
-        sample = fraud_sample
-
-    # update amount
-    sample[-1] = amount
-
-    prediction = model.predict([sample])
-    prob = model.predict_proba([sample])[0][1]
-
-    if prediction[0] == 1:
-        st.error(f"Fraud Detected! Probability: {prob:.2f}")
-    else:
-        st.success(f"Normal Transaction. Probability: {prob:.2f}")
+        st.error("Fraud Detected")
