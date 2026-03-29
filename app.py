@@ -7,26 +7,38 @@ Original file is located at
     https://colab.research.google.com/drive/18ywxrGn_QkldBRecBWzuo07MVWeAtMMF
 """
 import streamlit as st
+import pandas as pd
 import numpy as np
 import pickle
 
-# Load model
+# Load trained model
 model = pickle.load(open("model.pkl", "rb"))
 
-st.title("Credit Card Fraud Detection")
+# Load dataset
+data = pd.read_csv("creditcard.csv")
 
-# Input (keep it simple)
-amount = st.number_input("Enter Transaction Amount")
-v1 = st.number_input("Enter V1")
-v2 = st.number_input("Enter V2")
+st.title("Credit Card Fraud Detection System")
 
-# Button
-if st.button("Check Transaction"):
-    input_data = np.array([[amount, v1, v2]])  # match your model features
+st.write("Click below buttons to test transactions")
+
+# NORMAL TRANSACTION
+if st.button("Test Normal Transaction"):
+    normal = data[data['Class'] == 0].iloc[0]
+    input_data = normal.drop('Class').values.reshape(1, -1)
     
     prediction = model.predict(input_data)
+    
+    st.success("Normal Transaction Detected")
 
-    if prediction[0] == 0:
-        st.success("Normal Transaction")
-    else:
-        st.error("Fraud Detected")
+# FRAUD TRANSACTION
+if st.button("Test Fraud Transaction"):
+    fraud = data[data['Class'] == 1].iloc[0]
+    input_data = fraud.drop('Class').values.reshape(1, -1)
+    
+    prediction = model.predict(input_data)
+    
+    st.error("Fraudulent Transaction Detected")
+
+# OPTIONAL: SHOW DATA
+if st.checkbox("Show Dataset Sample"):
+    st.write(data.head())
