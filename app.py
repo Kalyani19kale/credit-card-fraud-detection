@@ -7,33 +7,28 @@ Original file is located at
     https://colab.research.google.com/drive/18ywxrGn_QkldBRecBWzuo07MVWeAtMMF
 """
 
+
 import streamlit as st
 import numpy as np
 import pickle
-# Predefined sample (copied from dataset)
 
-sample = [0.0]*30
-sample[-1] = amount   
-
-# Load model
+# load model
 model = pickle.load(open('model.pkl', 'rb'))
 
 st.title("Credit Card Fraud Detection")
 
-st.write("Enter transaction details:")
-
-# Input
 amount = st.number_input("Transaction Amount", min_value=0.0)
 
 if st.button("Check Fraud"):
 
-    sample = df.drop('Class', axis=1).iloc[0].values
+    # create sample AFTER amount is defined
+    sample = [0.0]*30
     sample[-1] = amount
 
     prediction = model.predict([sample])
     prob = model.predict_proba([sample])[0][1]
 
     if prediction[0] == 1:
-        st.error(f" Fraud Detected! Probability: {prob:.2f}")
+        st.error(f"Fraud Detected! Probability: {prob:.2f}")
     else:
-        st.success(f"Normal Transaction. Probability of fraud: {prob:.2f}")
+        st.success(f" Normal Transaction. Probability: {prob:.2f}")
