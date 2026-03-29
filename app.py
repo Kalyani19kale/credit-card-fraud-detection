@@ -10,7 +10,9 @@ Original file is located at
 import streamlit as st
 import numpy as np
 import pickle
+import pandas as pd
 
+df = pd.read_csv("creditcard.csv")
 # Load model
 model = pickle.load(open('model.pkl', 'rb'))
 
