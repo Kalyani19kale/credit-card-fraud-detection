@@ -13,18 +13,19 @@ import pickle
 # Load model
 model = pickle.load(open("model.pkl", "rb"))
 
-st.title("💳 Credit Card Fraud Detection")
+st.title("Credit Card Fraud Detection")
 
 # Column names EXACTLY like training data
 columns = [
+'Time',
 'V1','V2','V3','V4','V5','V6','V7','V8','V9','V10',
 'V11','V12','V13','V14','V15','V16','V17','V18',
 'V19','V20','V21','V22','V23','V24','V25','V26',
 'V27','V28','Amount'
 ]
-
 # NORMAL DATA
 normal_values = [
+0, 
 -1.359807, -0.072781, 2.536346, 1.378155, -0.338321,
 0.462388, 0.239599, 0.098698, 0.363787, 0.090794,
 -0.551600, -0.617801, -0.991390, -0.311169, 1.468177,
@@ -32,9 +33,9 @@ normal_values = [
 -0.018307, 0.277838, -0.110474, 0.066928, 0.128539,
 -0.189115, 0.133558, -0.021053, 149.62
 ]
-
 # FRAUD DATA
 fraud_values = [
+0,   # Time
 -2.312227, 1.951992, -1.609851, 3.997906, -0.522188,
 -1.426545, -2.537387, 1.391657, -2.770089, -2.772272,
 3.202033, -2.899907, -0.595222, -4.289254, 0.389724,
@@ -42,14 +43,13 @@ fraud_values = [
 0.517232, -0.035049, -0.465211, 0.320198, 0.044519,
 0.177840, 0.261145, -0.143276, 0.00
 ]
-
 # Buttons
 if st.button("Test Normal Transaction"):
     input_df = pd.DataFrame([normal_values], columns=columns)
     prediction = model.predict(input_df)
-    st.success("✅ Normal Transaction")
+    st.success(" Normal Transaction")
 
 if st.button("Test Fraud Transaction"):
     input_df = pd.DataFrame([fraud_values], columns=columns)
     prediction = model.predict(input_df)
-    st.error("❌ Fraud Detected")
+    st.error("Fraud Detected")
