@@ -7,31 +7,27 @@ Original file is located at
     https://colab.research.google.com/drive/18ywxrGn_QkldBRecBWzuo07MVWeAtMMF
 """
 
-
 import streamlit as st
-import numpy as np
 import pickle
 
-# load model
 model = pickle.load(open('model.pkl', 'rb'))
 
-st.title("Credit Card Fraud Detection")
+st.title("💳 Credit Card Fraud Detection")
 
-amount = st.number_input("Transaction Amount", min_value=0.0)
 option = st.selectbox(
-    "Choose transaction type for demo:",
+    "Choose transaction type:",
     ["Normal Transaction", "Fraud Transaction"]
 )
 
+if st.button("Check Fraud"):
+
     normal_sample = [10,0.38,0.61,-0.87,-0.09,2.92,3.31,0.47,0.53,-0.55,0.30,
--0.25,-0.32,-0.09,0.36,0.92,-0.12,-0.80,0.35,0.70,0.12,0.04,0.23,
-0.009,0.99,-0.76,-0.49,0.04,-0.05,50]
+    -0.25,-0.32,-0.09,0.36,0.92,-0.12,-0.80,0.35,0.70,0.12,0.04,0.23,
+    0.009,0.99,-0.76,-0.49,0.04,-0.05,50]
 
     fraud_sample = [-1.35,-0.07,2.53,1.37,-0.33,0.46,0.23,0.09,-0.55,0.08,
--0.25,-0.11,0.22,-0.16,0.07,0.10,-0.02,0.01,0.50,-0.02,-0.01,0.02,
-0.05,0.10,-0.20,0.12,-0.01,0.03,-0.02,100]
-
-  if st.button("Check Fraud"):
+    -0.25,-0.11,0.22,-0.16,0.07,0.10,-0.02,0.01,0.50,-0.02,-0.01,0.02,
+    0.05,0.10,-0.20,0.12,-0.01,0.03,-0.02,100]
 
     if option == "Normal Transaction":
         sample = normal_sample
@@ -44,4 +40,4 @@ option = st.selectbox(
     if prediction[0] == 1:
         st.error(f"Fraud Detected! Probability: {prob:.2f}")
     else:
-        st.success(f" Normal Transaction. Probability: {prob:.2f}")
+        st.success(f"Normal Transaction. Probability: {prob:.2f}")
