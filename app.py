@@ -8,48 +8,39 @@ Original file is located at
 """
 import streamlit as st
 import pandas as pd
-import pickle
+import numpy as np
+import pickle  # <- using pickle instead of joblib
 
-# Load model
-model = pickle.load(open("model.pkl", "rb"))
+#load model
+with open('fraud_model.pkl', 'rb') as f:
+    model = pickle.load(f)
+
+with open('scaler.pkl', 'rb') as f:
+    scaler = pickle.load(f)
+
 
 st.title("Credit Card Fraud Detection")
+st.write("Enter transaction details:")
 
-# Column names EXACTLY like training data
-columns = [
-'Time',
-'V1','V2','V3','V4','V5','V6','V7','V8','V9','V10',
-'V11','V12','V13','V14','V15','V16','V17','V18',
-'V19','V20','V21','V22','V23','V24','V25','V26',
-'V27','V28','Amount'
-]
-# NORMAL DATA
-normal_values = [
-0, 
--1.359807, -0.072781, 2.536346, 1.378155, -0.338321,
-0.462388, 0.239599, 0.098698, 0.363787, 0.090794,
--0.551600, -0.617801, -0.991390, -0.311169, 1.468177,
--0.470401, 0.207971, 0.025791, 0.403993, 0.251412,
--0.018307, 0.277838, -0.110474, 0.066928, 0.128539,
--0.189115, 0.133558, -0.021053, 149.62
-]
-# FRAUD DATA
-fraud_values = [
-0,   # Time
--2.312227, 1.951992, -1.609851, 3.997906, -0.522188,
--1.426545, -2.537387, 1.391657, -2.770089, -2.772272,
-3.202033, -2.899907, -0.595222, -4.289254, 0.389724,
--1.140747, -2.830056, -0.016822, 0.416956, 0.126911,
-0.517232, -0.035049, -0.465211, 0.320198, 0.044519,
-0.177840, 0.261145, -0.143276, 0.00
-]
-# Buttons
-if st.button("Test Normal Transaction"):
-    input_df = pd.DataFrame([normal_values], columns=columns)
-    prediction = model.predict(input_df)
-    st.success(" Normal Transaction")
+# Input features (V1 to V28)
+V_features = [f'V{i}' for i in range(1,29)]
+input_data = []
 
-if st.button("Test Fraud Transaction"):
-    input_df = pd.DataFrame([fraud_values], columns=columns)
-    prediction = model.predict(input_df)
-    st.error("Fraud Detected")
+for feature in V_features:
+    val = st.number_input(f"{feature}", value=0.0)
+    input_data.append(val)
+
+# Input for Amount
+amount = st.number_input("Amount", value=0.0)
+amount_scaled = scaler.transform([[amount]])[0][0]  # scale amount
+
+input_data.append(amount_scaled)
+input_array = np.array(input_data).reshape(1, -1)
+
+# Prediction
+if st.button("Predict Fraud"):
+    prediction = model.predict(input_array)
+    if prediction[0] == 1:
+        st.error("Fraudulent Transaction Detected!")
+    else:
+        st.success("Transaction is Normal")
