@@ -7,10 +7,11 @@ Original file is located at
     https://colab.research.google.com/drive/18ywxrGn_QkldBRecBWzuo07MVWeAtMMF
 """
 import streamlit as st
+import pandas as pd
 import numpy as np
 import pickle
 
-# Load trained model and scaler
+# Load model and scaler
 with open("model.pkl", "rb") as f:
     model = pickle.load(f)
 with open("scaler.pkl", "rb") as f:
@@ -18,45 +19,45 @@ with open("scaler.pkl", "rb") as f:
 
 st.title("Credit Card Fraud Detection")
 
-# V1 to V28 + Amount
-# Normal transaction (model will predict 0)
-normal_transaction = [
-    -1.359807, -0.072781, 2.536347, 1.378155, -0.338321, 0.462388,
-    0.239599, 0.098698, 0.363787, 0.090794, -0.551600, -0.617800,
-    -0.991390, -0.311169, 1.468177, -0.470401, 0.207971, 0.025791,
-    0.403993, 0.251412, -0.018307, 0.277838, -0.110474, 0.066928,
-    0.128539, -0.189115, 0.133558, 149.62  # Amount
-]
+# Hardcoded example transactions as dictionaries (with feature names)
+normal_transaction = {
+    'V1': -1.359807, 'V2': -0.072781, 'V3': 2.536347, 'V4': 1.378155,
+    'V5': -0.338321, 'V6': 0.462388, 'V7': 0.239599, 'V8': 0.098698,
+    'V9': 0.363787, 'V10': 0.090794, 'V11': -0.551600, 'V12': -0.617800,
+    'V13': -0.991390, 'V14': -0.311169, 'V15': 1.468177, 'V16': -0.470401,
+    'V17': 0.207971, 'V18': 0.025791, 'V19': 0.403993, 'V20': 0.251412,
+    'V21': -0.018307, 'V22': 0.277838, 'V23': -0.110474, 'V24': 0.066928,
+    'V25': 0.128539, 'V26': -0.189115, 'V27': 0.133558, 'V28': 0.021982,
+    'Amount': 149.62
+}
 
-# Fraudulent transaction (model will predict 1)
-fraud_transaction = [
-    1.191857, 0.266151, 0.166480, 0.448154, 0.060018, -0.082360,
-    -0.078802, 0.085101, -0.255425, -0.166974, 1.612727, 1.065235,
-    0.489095, -0.143772, 0.635558, 0.463917, -0.114804, -0.183361,
-    -0.145783, -0.069083, -0.225775, -0.638671, 0.101288, -0.339846,
-    0.167170, 0.125895, -0.008983, 378.66  # Amount
-]
+fraud_transaction = {
+    'V1': 1.191857, 'V2': 0.266151, 'V3': 0.166480, 'V4': 0.448154,
+    'V5': 0.060018, 'V6': -0.082360, 'V7': -0.078802, 'V8': 0.085101,
+    'V9': -0.255425, 'V10': -0.166974, 'V11': 1.612727, 'V12': 1.065235,
+    'V13': 0.489095, 'V14': -0.143772, 'V15': 0.635558, 'V16': 0.463917,
+    'V17': -0.114804, 'V18': -0.183361, 'V19': -0.145783, 'V20': -0.069083,
+    'V21': -0.225775, 'V22': -0.638671, 'V23': 0.101288, 'V24': -0.339846,
+    'V25': 0.167170, 'V26': 0.125895, 'V27': -0.008983, 'V28': -0.013495,
+    'Amount': 378.66
+}
 
-# select
+# Select transaction
 transaction_type = st.selectbox("Select Transaction:", ["Normal Transaction", "Fraudulent Transaction"])
+selected_transaction = normal_transaction if transaction_type=="Normal Transaction" else fraud_transaction
 
-if transaction_type == "Normal Transaction":
-    input_array = np.array(normal_transaction).reshape(1, -1)
-else:
-    input_array = np.array(fraud_transaction).reshape(1, -1)
+# Convert to DataFrame with feature names (important for XGBoost)
+input_df = pd.DataFrame([selected_transaction])
 
 # Scale Amount
-input_array[0, -1] = scaler.transform(np.array([[input_array[0, -1]]]))[0][0]
-
-# Ensure float
-input_array = input_array.astype(float)
+input_df['Amount'] = scaler.transform(input_df[['Amount']])
 
 # Predict
 if st.button("Predict Fraud"):
-    prediction = model.predict(input_array)
-    prob = model.predict_proba(input_array)[:,1][0]
+    prediction = model.predict(input_df)
+    prob = model.predict_proba(input_df)[:,1][0]
 
-    if prediction[0] == 1:
+    if prediction[0]==1:
         st.error(f"Fraudulent Transaction Detected! Probability: {prob:.2f}")
     else:
         st.success(f"Transaction is Normal. Probability of Fraud: {prob:.2f}")
