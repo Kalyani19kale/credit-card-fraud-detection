@@ -18,14 +18,14 @@ with open('model.pkl', 'rb') as f:
 with open('scaler.pkl', 'rb') as f:
     scaler = pickle.load(f)
 
-st.title(" Credit Card Fraud Detection")
+st.title("Credit Card Fraud Detection")
 st.write("Enter transaction details to check for fraudulent activity.")
 
-# --- STEP 1: TIME FEATURE ---
+# TIME Feature
 # Most models expect 'Time' as the first feature
 time_val = st.number_input("Time (Seconds since first transaction)", value=0.0)
 
-# --- STEP 2: V1 to V28 FEATURES ---
+#  V1 to V28 Featues-
 # These are PCA-transformed features (typically values between -20 and 20)
 v_inputs = []
 cols = st.columns(4) # Organize inputs into 4 columns for better UI
@@ -34,14 +34,11 @@ for i in range(1, 29):
         val = st.number_input(f"V{i}", value=0.0, format="%.4f")
         v_inputs.append(val)
 
-# --- STEP 3: AMOUNT FEATURE ---
-amount = st.number_input("Transaction Amount ($)", value=0.0)
-
-# IMPORTANT: Scaler expects a 2D array [[value]]
+#  AMOUNT 
+amount = st.number_input("Transaction Amount", value=0.0)
 amount_scaled = scaler.transform([[amount]])[0][0]
 
-# --- STEP 4: COMBINE AND PREDICT ---
-# Order: [Time, V1, V2, ..., V28, Amount_Scaled]
+
 input_data = [time_val] + v_inputs + [amount_scaled]
 input_array = np.array(input_data).reshape(1, -1)
 
@@ -49,6 +46,6 @@ if st.button("Predict Fraud"):
     prediction = model.predict(input_array)
     
     if prediction[0] == 1:
-        st.error("Warning: Fraudulent Transaction Detected!")
+        st.error("Warning: Fraud Transaction Detected!")
     else:
         st.success("Transaction Appears Normal")
